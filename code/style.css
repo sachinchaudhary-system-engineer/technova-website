@@ -1,6 +1,11 @@
-
+```css
+/* Reset and global styles */
 * {
     box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -11,56 +16,141 @@ body {
     line-height: 1.6;
 }
 
+/* Header */
 header {
     background: #173b68;
-    color: white;
+    color: #ffffff;
     text-align: center;
     padding: 45px 20px;
 }
 
+header h1 {
+    margin: 0 0 10px;
+    font-size: 2.3rem;
+}
+
+header p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* Navigation */
 nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px 30px;
     background: #102b4c;
-    padding: 14px;
-    text-align: center;
+    padding: 14px 20px;
 }
 
 nav a {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
-    margin: 0 18px;
+    font-weight: 600;
+    transition: color 0.2s ease;
 }
 
+nav a:hover,
+nav a:focus-visible {
+    color: #8ec5ff;
+    text-decoration: underline;
+}
+
+/* Main content */
 main {
+    width: 100%;
     max-width: 1000px;
     margin: 30px auto;
     padding: 0 20px;
 }
 
+/* Sections */
 section {
-    background: white;
+    background: #ffffff;
     padding: 25px;
     margin-bottom: 22px;
     border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(16, 43, 76, 0.06);
+    scroll-margin-top: 20px;
 }
 
+section h2 {
+    color: #173b68;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* Services */
 .services {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
 }
 
-article {
-    flex: 1;
-    min-width: 180px;
-    padding: 15px;
+.services article {
+    padding: 20px;
     background: #e9f1fc;
+    border: 1px solid #d7e5f7;
     border-radius: 6px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.services article:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 14px rgba(16, 43, 76, 0.12);
+}
+
+.services article h3 {
+    color: #173b68;
+    margin-top: 0;
+}
+
+.services article p {
+    margin-bottom: 0;
+}
+
+/* Contact section */
+#contact a {
+    color: #173b68;
+}
+
+/* Footer */
 footer {
     background: #102b4c;
-    color: white;
+    color: #ffffff;
     text-align: center;
-    padding: 16px;
+    padding: 16px 20px;
 }
 
+footer p {
+    margin: 0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    header {
+        padding: 35px 15px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    nav {
+        gap: 10px 20px;
+    }
+
+    main {
+        margin: 20px auto;
+        padding: 0 12px;
+    }
+
+    section {
+        padding: 20px;
+    }
+
+    .services {
+        grid-template-columns: 1fr;
+    }
+}
