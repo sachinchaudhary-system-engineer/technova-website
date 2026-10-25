@@ -1,0 +1,66 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #243047;
+    background: #f3f6fb;
+    line-height: 1.6;
+}
+
+header {
+    background: #173b68;
+    color: white;
+    text-align: center;
+    padding: 45px 20px;
+}
+
+nav {
+    background: #102b4c;
+    padding: 14px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 18px;
+}
+
+main {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+section {
+    background: white;
+    padding: 25px;
+    margin-bottom: 22px;
+    border-radius: 8px;
+}
+
+.services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+article {
+    flex: 1;
+    min-width: 180px;
+    padding: 15px;
+    background: #e9f1fc;
+    border-radius: 6px;
+}
+
+footer {
+    background: #102b4c;
+    color: white;
+    text-align: center;
+    padding: 16px;
+}
+
