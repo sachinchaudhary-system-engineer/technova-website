@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechNova Solutions</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>TechNova Solutions</h1>
+        <p>Building reliable technology for tomorrow.</p>
+    </header>
+
+    <nav>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <main>
+        <section id="about">
+            <h2>About Us</h2>
+            <p>
+                We deliver reliable IT infrastructure,
+                cloud and automation solutions.
+            </p>
+        </section>
+
+        <section id="services">
+            <h2>Our Services</h2>
+
+            <div class="services" id="services-list">
+                <p>Loading services from API...</p>
+            </div>
+
+            <p id="api-status" role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Email: contact@example.com</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TechNova Solutions</p>
+    </footer>
+
+    <script>
+        async function loadServices() {
+            const servicesContainer =
+                document.getElementById('services-list');
+            const status =
+                document.getElementById('api-status');
+
+            try {
+                const response = await fetch('/api/services');
+
+                if (!response.ok) {
+                    throw new Error(
+                        `API returned HTTP ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                if (!Array.isArray(data.services)) {
+                    throw new Error(
+                        'Invalid API response: services must be an array'
+                    );
+                }
+
+                servicesContainer.replaceChildren();
+
+                data.services.forEach(service => {
+                    const article = document.createElement('article');
+                    const heading = document.createElement('h3');
+
+                    heading.textContent = service;
+                    article.appendChild(heading);
+
+                    servicesContainer.appendChild(article);
+                });
+
+                status.textContent =
+                    `Loaded ${data.services.length} services from ${data.company}.`;
+
+            } catch (error) {
+                console.error('Failed to load services:', error);
+
+                servicesContainer.replaceChildren();
+
+                const message = document.createElement('p');
+                message.textContent =
+                    'Unable to load services. Please try again later.';
+
+                servicesContainer.appendChild(message);
+                status.textContent = 'API request failed.';
+            }
+        }
+
+        loadServices();
+    </script>
+</body>
+</html>

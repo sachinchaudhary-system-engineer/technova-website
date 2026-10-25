@@ -1,0 +1,15 @@
+
+services:
+  frontend:
+    build: .
+    image: technova-website:v1
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    image: technova-api:v1.0
+    ports:
+      - "5000:5000"
