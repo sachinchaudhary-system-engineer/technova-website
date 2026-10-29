@@ -1,10 +1,16 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from pathlib import Path
 import json
 import os
+import time
+import redis
 
-DATA_FILE = Path(os.getenv("DATA_DIR", "/data")) / "visits.json"
+cache = redis.Redis(
+    host=os.getenv("REDIS_HOST", "redis"),
+    port=int(os.getenv("REDIS_PORT", "6379")),
+    decode_responses=True,
+    socket_connect_timeout=2
+)
 
 SERVICES = [
     "Cloud Computing",
@@ -14,20 +20,9 @@ SERVICES = [
 ]
 
 
-def read_visits():
-    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-    if not DATA_FILE.exists():
-        DATA_FILE.write_text('{"visits": 0}')
-
-    return json.loads(DATA_FILE.read_text())
-
-
 class APIHandler(BaseHTTPRequestHandler):
-
-    def send_json(self, status, data):
+    def respond(self, status, data):
         body = json.dumps(data).encode()
-
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -36,27 +31,37 @@ class APIHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self.send_json(200, {"status": "healthy"})
+            self.respond(200, {"status": "healthy"})
             return
 
         if self.path == "/api/services":
-            self.send_json(200, {
-                "company": "TechNova Solutions",
-                "services": SERVICES
-            })
-            return
-
-        if self.path == "/api/visits":
             try:
-                data = read_visits()
-                data["visits"] += 1
-                DATA_FILE.write_text(json.dumps(data))
-                self.send_json(200, data)
-            except (OSError, ValueError):
-                self.send_json(500, {"error": "Data unavailable"})
+                cached = cache.get("technova:services")
+
+                if cached:
+                    result = json.loads(cached)
+                    result["cache"] = "HIT"
+                else:
+                    result = {
+                        "company": "TechNova Solutions",
+                        "services": SERVICES
+                    }
+                    cache.setex(
+                        "technova:services",
+                        60,
+                        json.dumps(result)
+                    )
+                    result["cache"] = "MISS"
+
+                self.respond(200, result)
+
+            except redis.RedisError:
+                self.respond(503, {
+                    "error": "Cache service unavailable"
+                })
             return
 
-        self.send_json(404, {"error": "Not found"})
+        self.respond(404, {"error": "Not found"})
 
     def log_message(self, fmt, *args):
         print("%s - %s" % (
@@ -64,5 +69,7 @@ class APIHandler(BaseHTTPRequestHandler):
         ), flush=True)
 
 
-port = int(os.getenv("PORT", "5000"))
-HTTPServer(("0.0.0.0", port), APIHandler).serve_forever()
+HTTPServer(
+    ("0.0.0.0", int(os.getenv("PORT", "5000"))),
+    APIHandler
+).serve_forever()

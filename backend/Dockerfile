@@ -6,6 +6,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PORT=5000
 ENV DATA_DIR=/data
 
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
 WORKDIR /app
 
 COPY app.py .
