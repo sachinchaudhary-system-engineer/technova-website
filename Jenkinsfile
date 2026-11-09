@@ -99,9 +99,9 @@ pipeline {
 
                     echo "Final Pod Status:"
                     kubectl get pods -n website
-                '''
 
                 echo "Deployment verification completed"
+                '''
             }
         }
     }
