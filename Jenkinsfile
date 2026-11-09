@@ -49,9 +49,8 @@ pipeline {
         stage("Deploy to Kubernetes") {
             steps {
                 sh '''
-                    kubectl create namespace website \
-                        --dry-run=client -o yaml | kubectl apply -f -
-                        
+                    kubectl create namespace website 
+
                     kubectl apply -f k8s/ -n website
 
                     kubectl set image deployment/frontend-deployment \
