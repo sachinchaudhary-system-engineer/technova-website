@@ -68,7 +68,10 @@ pipeline {
         stage("Verify Deployment") {
             steps {
                 sh '''
-                    echo "Checking Pods..."
+                    echo "Waiting 30 seconds for pods to initialize..."
+                    sleep 30
+
+                    cho "Checking Pods..."
                     kubectl get pods -n website
 
                     echo "Checking Deployments..."
@@ -80,9 +83,22 @@ pipeline {
                     echo "Checking Ingress..."
                     kubectl get ingress -n website
 
-                    echo "Checking rollout status..."
-                    kubectl rollout status deployment --all \
+                    echo "Waiting for Backend Deployment..."
+                    kubectl rollout status deployment/backend-deployment \
                         -n website --timeout=180s
+
+                    echo "Waiting for Frontend Deployment..."
+                    kubectl rollout status deployment/frontend-deployment \
+                        -n website --timeout=180s
+
+                    echo "Waiting for Redis Deployment..."
+                    kubectl rollout status deployment/redis \
+                        -n website --timeout=180s
+
+                    echo "All deployments are ready!"
+
+                    echo "Final Pod Status:"
+                    kubectl get pods -n website
                 '''
 
                 echo "Deployment verification completed"
