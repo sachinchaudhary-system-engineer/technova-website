@@ -25,6 +25,12 @@ spec:
           ports:
             - containerPort: 5000
 
+          env:
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT_NUMBER
+              value: "6379"
+
           resources:
             requests:
               cpu: 100m

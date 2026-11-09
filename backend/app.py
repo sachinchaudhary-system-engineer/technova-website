@@ -7,7 +7,7 @@ import redis
 
 cache = redis.Redis(
     host=os.getenv("REDIS_HOST", "redis"),
-    port=int(os.getenv("REDIS_PORT", "6379")),
+    port=int(os.getenv("REDIS_PORT_NUMBER", "6379")),
     decode_responses=True,
     socket_connect_timeout=2
 )
