@@ -48,8 +48,7 @@ pipeline {
 
         stage("Deploy to Kubernetes") {
             steps {
-                sh '''
-                    kubectl create namespace website 
+                sh ''' 
 
                     kubectl apply -f k8s/ -n website
 
@@ -94,9 +93,6 @@ pipeline {
     post {
         failure {
             echo "Pipeline failed. Please check the logs for details."
-            sh '''
-            kubectl delete ns website
-            '''
         }
 
         success {
