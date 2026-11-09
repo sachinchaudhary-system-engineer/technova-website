@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh '''
                     docker build -t chaudharysachin/technova-frontend:v1 ./frontend
-                    docker build -t chaudharysachin/technova-backend:v1 ./backend
+                    docker build -t chaudharysachin/technova-backend:v2 ./backend
                 '''
 
                 echo "Docker build completed"
@@ -37,7 +37,7 @@ pipeline {
                             -u "$DOCKER_USER" --password-stdin
 
                         docker push chaudharysachin/technova-frontend:v1
-                        docker push chaudharysachin/technova-backend:v1
+                        docker push chaudharysachin/technova-backend:v2
 
                         docker logout
                     '''
@@ -55,7 +55,7 @@ pipeline {
                         -n website
 
                     kubectl set image deployment/backend-deployment \
-                        backend-container=chaudharysachin/technova-backend:v1 \
+                        backend-container=chaudharysachin/technova-backend:v2 \
                         -n website
                 '''
 
