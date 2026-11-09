@@ -56,11 +56,6 @@ spec:
             timeoutSeconds: 2
             failureThreshold: 3
 
-      volumes:
-        - name: backend-storage
-          persistentVolumeClaim:
-            claimName: technova-pvc
-
 ---
 apiVersion: v1
 kind: Service
