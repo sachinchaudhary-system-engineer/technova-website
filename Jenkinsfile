@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -49,7 +48,6 @@ pipeline {
         stage("Deploy to Kubernetes") {
             steps {
                 sh ''' 
-
                     kubectl apply -f k8s/ -n website
 
                     kubectl set image deployment/frontend-deployment \
@@ -71,7 +69,7 @@ pipeline {
                     echo "Waiting 30 seconds for pods to initialize..."
                     sleep 30
 
-                    cho "Checking Pods..."
+                    echo "Checking Pods..."
                     kubectl get pods -n website
 
                     echo "Checking Deployments..."
@@ -100,7 +98,7 @@ pipeline {
                     echo "Final Pod Status:"
                     kubectl get pods -n website
 
-                echo "Deployment verification completed"
+                    echo "Deployment verification completed"
                 '''
             }
         }
