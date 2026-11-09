@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: frontend-container
-          image: techno-frontend:v1
+          image: IMAGE_PLACEHOLDER
           imagePullPolicy: IfNotPresent
 
           ports:
