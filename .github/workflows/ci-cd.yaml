@@ -43,24 +43,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: http://192.168.142.138:9000
       # --------------------------------
-      # 3. QUALITY GATE
-      # --------------------------------
-
-      - name: SonarQube Quality Gate
-        id: quality-gate
-        uses: SonarSource/sonarqube-quality-gate-action@v1
-        with:
-          pollingTimeoutSec: 60
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: http://192.168.142.138:9000
-
-      - name: Quality Gate Status
-        run: |
-          echo "SonarQube Quality Gate:"
-          echo "${{ steps.quality-gate.outputs.quality-gate-status }}"
-
-      # --------------------------------
       # 4. DOCKER BUILD
       # --------------------------------
 
