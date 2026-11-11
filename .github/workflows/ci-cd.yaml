@@ -50,7 +50,7 @@ jobs:
         id: quality-gate
         uses: SonarSource/sonarqube-quality-gate-action@v1
         with:
-          pollingTimeoutSec: 600
+          pollingTimeoutSec: 60
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: http://192.168.142.138:9000
