@@ -60,7 +60,7 @@ metadata:
   namespace: website
 
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: frontend
   ports:
