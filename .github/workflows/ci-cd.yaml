@@ -1,0 +1,174 @@
+
+name: Technova Website CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Technova
+    runs-on: [self-hosted, linux, x64]
+
+    env:
+      FRONTEND_IMAGE: chaudharysachin/technova-frontend
+      BACKEND_IMAGE: chaudharysachin/technova-backend
+      IMAGE_TAG: ${{ github.sha }}
+      K8S_NAMESPACE: website
+
+    steps:
+
+      # --------------------------------
+      # 1. CODE CHECKOUT
+      # --------------------------------
+
+      - name: Code Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # --------------------------------
+      # 2. SONARQUBE ANALYSIS
+      # --------------------------------
+
+      - name: SonarQube Analysis
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # --------------------------------
+      # 3. QUALITY GATE
+      # --------------------------------
+
+      - name: SonarQube Quality Gate
+        id: quality-gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Quality Gate Status
+        run: |
+          echo "SonarQube Quality Gate:"
+          echo "${{ steps.quality-gate.outputs.quality-gate-status }}"
+
+      # --------------------------------
+      # 4. DOCKER BUILD
+      # --------------------------------
+
+      - name: Build Frontend Image
+        run: |
+          docker build \
+            -t $FRONTEND_IMAGE:$IMAGE_TAG \
+            -t $FRONTEND_IMAGE:latest \
+            ./frontend
+
+      - name: Build Backend Image
+        run: |
+          docker build \
+            -t $BACKEND_IMAGE:$IMAGE_TAG \
+            -t $BACKEND_IMAGE:latest \
+            ./backend
+
+      # --------------------------------
+      # 5. DOCKERHUB LOGIN
+      # --------------------------------
+
+      - name: DockerHub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # --------------------------------
+      # 6. PUSH FRONTEND IMAGE
+      # --------------------------------
+
+      - name: Push Frontend Image
+        run: |
+          docker push $FRONTEND_IMAGE:$IMAGE_TAG
+          docker push $FRONTEND_IMAGE:latest
+
+      # --------------------------------
+      # 7. PUSH BACKEND IMAGE
+      # --------------------------------
+
+      - name: Push Backend Image
+        run: |
+          docker push $BACKEND_IMAGE:$IMAGE_TAG
+          docker push $BACKEND_IMAGE:latest
+
+      # --------------------------------
+      # 8. DOCKERHUB LOGOUT
+      # --------------------------------
+
+      - name: DockerHub Logout
+        if: always()
+        run: docker logout
+
+      # --------------------------------
+      # 9. KUBERNETES DEPLOYMENT
+      # --------------------------------
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/ -n $K8S_NAMESPACE
+
+          kubectl set image deployment/frontend-deployment \
+            frontend-container=$FRONTEND_IMAGE:$IMAGE_TAG \
+            -n $K8S_NAMESPACE
+
+          kubectl set image deployment/backend-deployment \
+            backend-container=$BACKEND_IMAGE:$IMAGE_TAG \
+            -n $K8S_NAMESPACE
+
+      # --------------------------------
+      # 10. VERIFY DEPLOYMENT
+      # --------------------------------
+
+      - name: Verify Kubernetes Deployment
+        run: |
+
+          echo "Checking Backend Deployment..."
+          kubectl rollout status deployment/backend-deployment \
+            -n $K8S_NAMESPACE --timeout=180s
+
+          echo "Checking Frontend Deployment..."
+          kubectl rollout status deployment/frontend-deployment \
+            -n $K8S_NAMESPACE --timeout=180s
+
+          echo "Checking Redis Deployment..."
+          kubectl rollout status deployment/redis \
+            -n $K8S_NAMESPACE --timeout=180s
+
+          echo "Checking Pods..."
+          kubectl get pods -n $K8S_NAMESPACE
+
+          echo "Checking Services..."
+          kubectl get svc -n $K8S_NAMESPACE
+
+          echo "Checking Ingress..."
+          kubectl get ingress -n $K8S_NAMESPACE
+
+          echo "Deployment verification completed!"
+
+      # --------------------------------
+      # 11. PIPELINE STATUS
+      # --------------------------------
+
+      - name: Pipeline Success
+        if: success()
+        run: echo "Technova CI/CD pipeline completed successfully!"
+
+      - name: Pipeline Failure
+        if: failure()
+        run: echo "CI/CD pipeline failed. Check the previous steps."
